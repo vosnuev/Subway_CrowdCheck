@@ -1,0 +1,63 @@
+{# templates/tab_search.html #}
+<div class="split">
+
+  <!-- ── 왼쪽: 입력 폼 (4/10) ── -->
+  <div>
+    <!-- 노선·역 선택 -->
+    <div class="card">
+      <div class="card-title">노선 선택</div>
+
+      <label class="lbl">호선</label>
+      <div class="sel-wrap">
+        <select id="s-line" onchange="onLineChange('s')">
+          <option value="">호선 선택</option>
+        </select>
+      </div>
+
+      <label class="lbl">역</label>
+      <div class="sel-wrap">
+        <select id="s-station">
+          <option value="">역 선택 (호선 먼저)</option>
+        </select>
+      </div>
+
+      <label class="lbl">방향</label>
+      <div class="sel-wrap">
+        <select id="s-dir">
+          <option value="down">하행 방면</option>
+          <option value="up">상행 방면</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 조회 시간 -->
+    <div class="card">
+      <div class="card-title">조회 시간</div>
+
+      <!-- 즐겨찾기 시간 칩 (6개, 3×2) -->
+      <div class="fav-times" id="fav-chips"></div>
+
+      <label class="lbl" style="margin-top:4px">직접 설정</label>
+      <div class="time-row">
+        <div class="time-input-wrap">
+          <select id="s-hour"></select>
+        </div>
+        <span class="time-divider">:</span>
+        <div class="time-input-wrap">
+          <select id="s-min"></select>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="doSearch()">혼잡도 조회</button>
+  </div>
+
+  <!-- ── 오른쪽: 조회 결과 (6/10) ── -->
+  <div id="search-result">
+    <div class="result-placeholder">
+      <div class="icon">🗺️</div>
+      <div>호선, 역, 시간을 선택하고<br>조회 버튼을 눌러주세요</div>
+    </div>
+  </div>
+
+</div>

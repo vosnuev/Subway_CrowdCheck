@@ -1,0 +1,48 @@
+{# templates/tab_compare.html #}
+<div class="split">
+
+  <!-- ── 왼쪽: 입력 폼 ── -->
+  <div>
+    <div class="card">
+      <div class="card-title">노선 선택</div>
+
+      <label class="lbl">호선</label>
+      <div class="sel-wrap">
+        <select id="c-line" onchange="onLineChange('c')">
+          <option value="">호선 선택</option>
+        </select>
+      </div>
+
+      <label class="lbl">역</label>
+      <div class="sel-wrap">
+        <select id="c-station">
+          <option value="">역 선택 (호선 먼저)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">기준 시간 (지금 출발 기준)</div>
+      <div class="time-row">
+        <div class="time-input-wrap">
+          <select id="c-hour"></select>
+        </div>
+        <span class="time-divider">:</span>
+        <div class="time-input-wrap">
+          <select id="c-min"></select>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="doCompare()">비교하기</button>
+  </div>
+
+  <!-- ── 오른쪽: 비교 결과 ── -->
+  <div id="compare-result">
+    <div class="result-placeholder">
+      <div class="icon">⚖️</div>
+      <div>지금 출발 vs 1시간 후<br>혼잡도를 비교해보세요</div>
+    </div>
+  </div>
+
+</div>

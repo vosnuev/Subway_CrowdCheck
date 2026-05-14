@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지하철 혼잡도</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">🚇</div>
+  <div>
+    <h1>지하철 혼잡도</h1>
+    <p>시간대별 혼잡도 예측</p>
+  </div>
+  <div class="now-chip">
+    <span class="pulse"></span>
+    <span id="clock">--:--</span>
+  </div>
+</header>
+
+<!-- ── TABS ── -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('search')">🔍 노선 조회</div>
+  <div class="tab" onclick="showTab('compare')">⚖️ 시간 비교</div>
+  <div class="tab" onclick="showTab('routes')">⭐ 나만의 루트</div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <!-- TAB 1: 노선 조회 -->
+  <div class="page active" id="tab-search">
+    {% include 'tab_search.html' %}
+  </div>
+
+  <!-- TAB 2: 시간 비교 -->
+  <div class="page" id="tab-compare">
+    {% include 'tab_compare.html' %}
+  </div>
+
+  <!-- TAB 3: 나만의 루트 -->
+  <div class="page" id="tab-routes">
+    {% include 'tab_routes.html' %}
+  </div>
+</div>
+
+<!-- ── TOOLTIP ── -->
+<div id="tt"></div>
+
+<!-- ── 즐겨찾기 시간 수정 모달 ── -->
+<div class="modal-overlay" id="time-modal">
+  <div class="modal">
+    <h3 id="modal-title">즐겨찾기 시간 설정</h3>
+    <div class="modal-time-row">
+      <select id="modal-hour"></select>
+      <span class="modal-divider">:</span>
+      <select id="modal-min"></select>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeTimeModal()">취소</button>
+      <button class="modal-save"   onclick="saveTimeModal()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Python → JS 데이터 주입 ── -->
+<script>
+  window.__APP_DATA__ = {
+    LINE_META:    {{ line_meta_json    | safe }},
+    STATIONS:     {{ stations_json     | safe }},
+    PATTERNS:     {{ patterns_json     | safe }},
+    LINE_PATTERN: {{ line_pattern_json | safe }},
+  };
+</script>
+
+<!-- ── JS 파일 로드 순서: data → ui → 각 탭 ── -->
+<script src="{{ url_for('static', filename='js/data.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
+<script src="{{ url_for('static', filename='js/compare.js') }}"></script>
+<script src="{{ url_for('static', filename='js/routes.js') }}"></script>
+
+</body>
+</html>

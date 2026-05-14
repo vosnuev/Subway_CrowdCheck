@@ -1,0 +1,56 @@
+{# templates/tab_routes.html #}
+
+<!-- 저장된 루트 목록 -->
+<div id="fav-list"></div>
+
+<button class="btn outline" onclick="openAddForm()">+ 루트 추가</button>
+
+<!-- 루트 추가 폼 (토글) -->
+<div class="card" id="add-form" style="display:none; margin-top:12px;">
+  <div class="card-title">새 루트</div>
+
+  <label class="lbl">루트 이름</label>
+  <div class="sel-wrap">
+    <input type="text" id="f-name" placeholder="예: 출근길"
+      style="width:100%;background:var(--surface2);border:1.5px solid var(--border);
+             border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;
+             font-size:13px;padding:10px 12px;outline:none;transition:border-color .18s;"
+      onfocus="this.style.borderColor='#3b5bdb'"
+      onblur="this.style.borderColor='var(--border)'">
+  </div>
+
+  <label class="lbl">호선</label>
+  <div class="sel-wrap">
+    <select id="f-line" onchange="onLineChange('f')">
+      <option value="">호선 선택</option>
+    </select>
+  </div>
+
+  <label class="lbl">출발역</label>
+  <div class="sel-wrap">
+    <select id="f-from"><option value="">출발역 선택</option></select>
+  </div>
+
+  <label class="lbl">도착역 <span style="color:var(--text-muted)">(참고)</span></label>
+  <div class="sel-wrap">
+    <select id="f-to"><option value="">도착역 선택</option></select>
+  </div>
+
+  <label class="lbl">방향</label>
+  <div class="sel-wrap">
+    <select id="f-dir">
+      <option value="down">▼ 하행</option>
+      <option value="up">▲ 상행</option>
+    </select>
+  </div>
+
+  <label class="lbl">출발 시간</label>
+  <div class="time-row">
+    <div class="time-input-wrap"><select id="f-hour"></select></div>
+    <span class="time-divider">:</span>
+    <div class="time-input-wrap"><select id="f-min"></select></div>
+  </div>
+
+  <button class="btn" style="margin-top:8px" onclick="saveFav()">저장</button>
+  <button class="btn ghost" onclick="closeAddForm()">취소</button>
+</div>

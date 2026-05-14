@@ -1,0 +1,26 @@
+[project]
+name = "subway-crowdcheck"
+version = "0.1.0"
+description = "서울 지하철 시간대별 혼잡도 예측 웹 앱"
+requires-python = ">=3.11"
+dependencies = [
+    "flask>=3.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.4.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
