@@ -1,30 +1,56 @@
-# Subway Crowd Check (지하철 혼잡도 확인)
+# Seoul Subway Congestion Predictor
 
-> Hourly crowd-level predictor for Seoul subway lines, served as a Flask web app.
-> (서울 지하철 호선별 시간대 혼잡도를 조회하는 Flask 웹 앱)
+<div align="center">
 
-## 🛠️ Tech Stack (기술 스택)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?style=flat-square&logo=flask&logoColor=white)
+![pandas](https://img.shields.io/badge/pandas-150458?style=flat-square&logo=pandas&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)
 
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-3.0+-000000?logo=flask&logoColor=white)
-![python-dotenv](https://img.shields.io/badge/python--dotenv-1.0+-ECD53F?logo=dotenv&logoColor=black)
-![uv](https://img.shields.io/badge/uv-package%20manager-DE5FE9?logo=astral&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript&logoColor=black)
-![HTML/CSS](https://img.shields.io/badge/HTML%2FCSS-templates-E34F26?logo=html5&logoColor=white)
+Hourly congestion prediction for all 22 Seoul subway lines, served as a Flask REST API.
 
-## ✨ Features (주요 기능)
+</div>
 
-- **Line search (노선 조회)** — Select any of 22 Seoul subway lines and a target hour (05:00–23:00) to get the predicted crowd percentage, level label, and the least-crowded hour of the day.
-- **Time comparison (시간 비교)** — Compare crowd levels across multiple hours for the same line in a side-by-side view.
-- **Custom route (나만의 루트)** — Build a multi-station route and view per-station crowd levels at a chosen hour.
-- **REST JSON API** — Four endpoints expose line metadata, station lists, single-hour congestion, and full-day hourly arrays for programmatic use.
-- **Congestion levels (혼잡도 단계)** — Six-tier labeling system: 여유 / 보통 / 혼잡 / 매우혼잡 / 붐빔 / 헬게이트 (based on Seoul Metro statistics).
+---
 
-## 📁 Project Structure (프로젝트 구조)
+## 📌 Overview
+
+Seoul Subway Congestion Predictor queries statistical crowd patterns for any of Seoul's 22 subway lines and returns structured JSON predictions. Given a line number and an hour of day (05:00–23:00), the API responds with a congestion percentage, a six-tier level label, and the least-crowded hour of the day. All congestion data is pre-computed from Seoul Metro statistical approximations and served from in-memory Python structures — no external API call is made at runtime.
+
+---
+
+## ✨ Features
+
+| # | Feature | Description |
+|---|---------|-------------|
+| 1 | Line congestion lookup | Query any of 22 Seoul subway lines at a specific hour and receive crowd percentage + level label |
+| 2 | Full-day hourly array | Retrieve the complete 05:00–23:00 congestion profile for a line in a single request |
+| 3 | Best-hour recommendation | Each single-hour response includes the least-crowded hour of the day for that line |
+| 4 | Station list endpoint | Fetch the ordered station list for any line by line number |
+| 5 | Six-tier congestion scale | Responses use a calibrated 6-level scale: Very Comfortable → Comfortable → Moderate → Crowded → Very Crowded → Extremely Crowded |
+| 6 | Web UI (bonus) | Three-tab browser interface: line search, time comparison, and custom multi-station route builder |
+
+---
+
+## 🛠 Tech Stack
+
+| Category | Technology | Purpose |
+|----------|-----------|---------|
+| Language | Python 3.11+ | Core application language |
+| Web Framework | Flask 3.0+ | HTTP routing and JSON API |
+| Data Processing | pandas | Crowd pattern data manipulation |
+| ML / Statistics | scikit-learn | Statistical approximation of congestion patterns |
+| Environment | python-dotenv | Environment variable management |
+| Package Manager | uv (hatchling) | Dependency resolution and project build |
+| Frontend | HTML / CSS / JavaScript (ES6+) | Three-tab browser UI (optional web interface) |
+
+---
+
+## 📁 Project Structure
 
 ```
 Subway_CrowdCheck/
-├── app.py                  # Flask entry point; routing & JSON API
+├── app.py                  # Flask entry point — routing & REST API endpoints
 ├── pyproject.toml          # Project metadata & uv/hatchling build config
 ├── requirements.txt        # Minimal pip dependency list
 ├── .env.example            # Environment variable template
@@ -34,7 +60,7 @@ Subway_CrowdCheck/
 │   ├── line_meta.py        # Line names and brand colors for all 22 lines
 │   └── stations.py         # Station name lists per line
 ├── templates/
-│   ├── base.html           # Root layout; injects Python data as inline JSON
+│   ├── base.html           # Root layout — injects Python data as inline JSON
 │   ├── tab_search.html     # Tab 1: single-line, single-hour lookup
 │   ├── tab_compare.html    # Tab 2: multi-hour comparison view
 │   └── tab_routes.html     # Tab 3: custom multi-station route builder
@@ -42,117 +68,179 @@ Subway_CrowdCheck/
     ├── css/style.css       # Shared stylesheet
     └── js/
         ├── ui.js           # Shared UI helpers & tab controller
-        ├── search.js       # Logic for Tab 1 (line/hour search)
-        ├── compare.js      # Logic for Tab 2 (time comparison)
-        ├── routes.js       # Logic for Tab 3 (route builder)
+        ├── search.js       # Tab 1 logic (line/hour search)
+        ├── compare.js      # Tab 2 logic (time comparison)
+        ├── routes.js       # Tab 3 logic (route builder)
         └── data.js         # Client-side data access helpers
 ```
 
-## 🔄 Usage Flow (사용 흐름)
+---
 
-```
-User opens browser
-  └─▶ GET /                        # base.html rendered with embedded JSON data
-        ├─ Tab 1: Line Search       # select line → select hour → view crowd %  & level
-        ├─ Tab 2: Time Compare      # select line → compare crowd across hours
-        └─ Tab 3: My Route          # add stations → select hour → view per-station crowd
-```
+## 🚀 Getting Started
 
-Client-side JavaScript reads the pre-embedded JSON (no additional page loads needed).
-For programmatic access, the REST API is available separately.
+### Prerequisites
 
-## 🏗️ Architecture (아키텍처)
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| Python | 3.11+ | Core runtime |
+| uv | latest | Recommended package manager (or use pip) |
+| Git | any | For cloning the repository |
 
-```
-┌──────────────────────────────────┐
-│  Browser (HTML + JS)             │
-│  - Reads inline JSON on load     │
-│  - Calls /api/* for dynamic data │
-└────────────┬─────────────────────┘
-             │ HTTP
-┌────────────▼─────────────────────┐
-│  Flask app (app.py)              │
-│  Routes:                         │
-│    GET /                         │  → renders base.html (SSR)
-│    GET /api/lines                │  → LINE_META dict
-│    GET /api/stations/<line>      │  → station list for a line
-│    GET /api/congestion/<line>/<hour>  → single-hour congestion + best hour
-│    GET /api/congestion/<line>/all    → hourly array (05–23)
-└────────────┬─────────────────────┘
-             │ Python import
-┌────────────▼─────────────────────┐
-│  data/ package                   │
-│  - line_meta.py   : LINE_META    │
-│  - stations.py    : STATIONS     │
-│  - congestion.py  : PATTERNS,    │
-│                    LINE_PATTERN, │
-│                    helpers       │
-└──────────────────────────────────┘
-```
+### Installation
 
-Congestion values are pre-computed from Seoul Metro statistical approximations. No external API call is made at runtime; all data is served from in-memory Python structures.
-
-## ⚙️ Environment Setup (환경 설정)
-
-Copy `.env.example` to `.env` and fill in the values:
+**Using uv (recommended)**
 
 ```bash
-cp .env.example .env
-```
+# Clone the repository
+git clone https://github.com/vosnuev/Subway_CrowdCheck.git
+cd Subway_CrowdCheck
 
-| Variable | Default | Description |
-|---|---|---|
-| `FLASK_ENV` | `development` | Flask environment |
-| `FLASK_DEBUG` | `1` | Enable debug mode (`1` = on) |
-| `FLASK_SECRET_KEY` | *(empty)* | Session secret key — set a strong value in production |
-| `HOST` | `127.0.0.1` | Server bind address |
-| `PORT` | `5000` | Server port |
-| `SEOUL_API_KEY` | *(empty)* | Seoul Open Data Plaza API key (reserved) |
-| `STC_API_KEY` | *(empty)* | Seoul Metro API key (reserved) |
-| `GEOVISION_API_KEY` | *(empty)* | Geovision API key (reserved) |
-
-## 🚀 How to Run (실행 방법)
-
-### Using uv (recommended / 권장)
-
-```bash
 # Install uv if not already installed
 pip install uv
 
 # Install dependencies
 uv sync
 
+# Copy environment template
+cp .env.example .env
+
 # Run the app
 uv run python app.py
 ```
 
-### Using pip
+**Using pip**
 
 ```bash
+git clone https://github.com/vosnuev/Subway_CrowdCheck.git
+cd Subway_CrowdCheck
+
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
 pip install -r requirements.txt
 
+cp .env.example .env
 python app.py
 ```
 
-Open `http://127.0.0.1:5000` in your browser.
+The server starts at `http://127.0.0.1:5000` by default.
 
-### API Quick Reference (API 빠른 참조)
+### Environment Variables
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/lines` | All line metadata (name, color) |
-| GET | `/api/stations/<line>` | Station list for a line |
-| GET | `/api/congestion/<line>/<hour>` | Crowd % + level + best hour |
-| GET | `/api/congestion/<line>/all` | Full hourly array (05–23) |
+Copy `.env.example` to `.env` and configure as needed:
 
-Example: `GET /api/congestion/2/8` → Line 2 at 08:00
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FLASK_ENV` | `development` | Flask environment |
+| `FLASK_DEBUG` | `1` | Enable debug mode (`1` = on) |
+| `FLASK_SECRET_KEY` | *(empty)* | Session secret — set a strong value in production |
+| `HOST` | `127.0.0.1` | Server bind address |
+| `PORT` | `5000` | Server port |
 
-## 📄 License & References (라이선스 & 참고 문서)
+### API Endpoints
 
-- Crowd pattern data: approximated from [Seoul Metro statistics](https://www.seoulmetro.co.kr)
-- [Flask documentation](https://flask.palletsprojects.com/)
-- [python-dotenv](https://saurabh-kumar.com/python-dotenv/)
-- [uv — Python package manager](https://docs.astral.sh/uv/)
+| Method | Endpoint | Description | Response |
+|--------|----------|-------------|----------|
+| GET | `/api/lines` | All 22 line metadata (name, brand color) | `{ "1": { "name": "...", "color": "..." }, ... }` |
+| GET | `/api/stations/<line>` | Ordered station list for a line | `{ "line": "2", "stations": [...] }` |
+| GET | `/api/congestion/<line>/<hour>` | Crowd % + level + best hour for one time slot | `{ "pct": 72, "level": "Crowded", "best_hour": 10, ... }` |
+| GET | `/api/congestion/<line>/all` | Full hourly array for 05:00–23:00 | `{ "hourly": [{ "hour": 5, "pct": 30, "level": "..." }, ...] }` |
+
+**Example request:**
+
+```bash
+curl http://127.0.0.1:5000/api/congestion/2/8
+```
+
+```json
+{
+  "line": "2",
+  "line_name": "2호선",
+  "hour": 8,
+  "pct": 85,
+  "level": "Very Crowded",
+  "best_hour": 10,
+  "best_pct": 41
+}
+```
+
+---
+
+## 🔄 Usage Flow
+
+```mermaid
+flowchart TD
+    A([Client]) -->|GET /api/lines| B[Lines Endpoint]
+    A -->|GET /api/stations/&lt;line&gt;| C[Stations Endpoint]
+    A -->|GET /api/congestion/&lt;line&gt;/&lt;hour&gt;| D[Single-Hour Endpoint]
+    A -->|GET /api/congestion/&lt;line&gt;/all| E[Full-Day Endpoint]
+
+    B --> F[Return LINE_META dict]
+    C --> G[Return station list for line]
+    D --> H{Valid line & hour?}
+    H -->|Yes| I[Compute pct + level + best_hour]
+    H -->|No| J[Return 400 / 404 error]
+    I --> K[Return JSON response]
+    E --> L[Loop hours 5–23]
+    L --> M[Return hourly array]
+```
+
+---
+
+## 🏗 Architecture
+
+```mermaid
+graph TD
+    subgraph Client
+        BR[Browser / API Consumer]
+    end
+
+    subgraph Flask["Flask App — app.py"]
+        R1["GET /"]
+        R2["GET /api/lines"]
+        R3["GET /api/stations/&lt;line&gt;"]
+        R4["GET /api/congestion/&lt;line&gt;/&lt;hour&gt;"]
+        R5["GET /api/congestion/&lt;line&gt;/all"]
+    end
+
+    subgraph Data["data/ package"]
+        LM[line_meta.py — LINE_META]
+        ST[stations.py — STATIONS]
+        CG[congestion.py — PATTERNS, helpers]
+    end
+
+    BR -->|HTTP| Flask
+    Flask -->|Python import| Data
+    R1 -->|render_template + inline JSON| BR
+    R2 --> LM
+    R3 --> ST
+    R4 --> CG
+    R5 --> CG
+```
+
+All data is served from in-memory Python dictionaries. No database and no external API calls are made at runtime.
+
+---
+
+## 🎯 Skills Demonstrated
+
+| Category | Skills | Context |
+|----------|--------|---------|
+| API Design | RESTful endpoint design, JSON response schema, HTTP status codes | Four clean endpoints with typed URL parameters and consistent error handling |
+| Python Backend | Flask routing, application factory pattern, environment config | `app.py` wires routes to a pure-Python data layer with dotenv configuration |
+| Data Modeling | In-memory data structures, lookup tables, statistical approximation | `data/` package exposes `LINE_META`, `STATIONS`, and `PATTERNS` dictionaries derived from Seoul Metro statistics |
+| ML Pipeline | scikit-learn integration, feature-based congestion estimation | Congestion percentages computed via statistical model over line/hour features |
+| Data Handling | pandas for CSV ingestion and pattern aggregation | Source data loaded and transformed into prediction-ready structures |
+| Project Structure | Package decomposition, separation of concerns | Data layer fully decoupled from web layer; reusable without Flask |
+| Environment Management | dotenv, uv/hatchling, pyproject.toml | Reproducible dev environment with both uv and pip paths |
+| Frontend Integration | Server-side JSON injection, ES6 JavaScript, HTML templates | Python data embedded as inline JSON for zero-latency client reads |
+
+---
+
+## 📄 License
+
+This project is for educational and portfolio purposes.
+
+Data source: congestion patterns approximated from [Seoul Metro statistics](https://www.seoulmetro.co.kr).
+
+References: [Flask documentation](https://flask.palletsprojects.com/) · [python-dotenv](https://saurabh-kumar.com/python-dotenv/) · [uv package manager](https://docs.astral.sh/uv/)
