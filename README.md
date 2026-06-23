@@ -1,110 +1,158 @@
-# 🚇 Subway_CrowdCheck_app
+# Subway Crowd Check (지하철 혼잡도 확인)
 
-서울 지하철 시간대별 혼잡도를 조회하는 Flask 웹 앱입니다.  
-서울교통공사 통계 기반 패턴 데이터를 사용하며, 추후 실시간 공공 API 연동 구조로 설계되었습니다.
+> Hourly crowd-level predictor for Seoul subway lines, served as a Flask web app.
+> (서울 지하철 호선별 시간대 혼잡도를 조회하는 Flask 웹 앱)
 
----
+## 🛠️ Tech Stack (기술 스택)
 
-## 📁 프로젝트 구조
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0+-000000?logo=flask&logoColor=white)
+![python-dotenv](https://img.shields.io/badge/python--dotenv-1.0+-ECD53F?logo=dotenv&logoColor=black)
+![uv](https://img.shields.io/badge/uv-package%20manager-DE5FE9?logo=astral&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript&logoColor=black)
+![HTML/CSS](https://img.shields.io/badge/HTML%2FCSS-templates-E34F26?logo=html5&logoColor=white)
+
+## ✨ Features (주요 기능)
+
+- **Line search (노선 조회)** — Select any of 22 Seoul subway lines and a target hour (05:00–23:00) to get the predicted crowd percentage, level label, and the least-crowded hour of the day.
+- **Time comparison (시간 비교)** — Compare crowd levels across multiple hours for the same line in a side-by-side view.
+- **Custom route (나만의 루트)** — Build a multi-station route and view per-station crowd levels at a chosen hour.
+- **REST JSON API** — Four endpoints expose line metadata, station lists, single-hour congestion, and full-day hourly arrays for programmatic use.
+- **Congestion levels (혼잡도 단계)** — Six-tier labeling system: 여유 / 보통 / 혼잡 / 매우혼잡 / 붐빔 / 헬게이트 (based on Seoul Metro statistics).
+
+## 📁 Project Structure (프로젝트 구조)
 
 ```
-Subway_CrowdCheck_app/
-├── app.py                  # Flask 메인 (라우팅 + REST API)
-├── pyproject.toml          # uv 프로젝트 설정
-├── requirements.txt        # pip 호환 의존성
-├── .env                    # 🔑 환경변수 (gitignore됨 — 직접 생성)
-├── .env.example            # 환경변수 예시 (키값 없이 공개)
-├── .gitignore
-├── README.md
-│
-├── data/                   # Python 데이터 계층
-│   ├── __init__.py
-│   ├── line_meta.py        # 호선별 이름·색상
-│   ├── stations.py         # 호선별 역 목록 (1~9호선 + 광역·경전철)
-│   └── congestion.py       # 혼잡도 패턴 + 계산 함수
-│
-├── templates/              # Jinja2 HTML 템플릿
-│   ├── base.html           # 공통 레이아웃 (헤더·탭·모달·JS 데이터 주입)
-│   ├── tab_search.html     # 🔍 노선 조회 탭
-│   ├── tab_compare.html    # ⚖️ 시간 비교 탭
-│   └── tab_routes.html     # ⭐ 나만의 루트 탭
-│
+Subway_CrowdCheck/
+├── app.py                  # Flask entry point; routing & JSON API
+├── pyproject.toml          # Project metadata & uv/hatchling build config
+├── requirements.txt        # Minimal pip dependency list
+├── .env.example            # Environment variable template
+├── data/
+│   ├── __init__.py         # Public re-exports for the data package
+│   ├── congestion.py       # Crowd patterns, level labels, best-hour finder
+│   ├── line_meta.py        # Line names and brand colors for all 22 lines
+│   └── stations.py         # Station name lists per line
+├── templates/
+│   ├── base.html           # Root layout; injects Python data as inline JSON
+│   ├── tab_search.html     # Tab 1: single-line, single-hour lookup
+│   ├── tab_compare.html    # Tab 2: multi-hour comparison view
+│   └── tab_routes.html     # Tab 3: custom multi-station route builder
 └── static/
-    ├── css/
-    │   └── style.css
+    ├── css/style.css       # Shared stylesheet
     └── js/
-        ├── data.js         # Python → JS 데이터 전달 및 계산 함수
-        ├── ui.js           # 탭·시계·드롭다운·즐겨찾기 공통 UI
-        ├── search.js       # 노선 조회 로직
-        ├── compare.js      # 시간 비교 로직
-        └── routes.js       # 나만의 루트 CRUD
+        ├── ui.js           # Shared UI helpers & tab controller
+        ├── search.js       # Logic for Tab 1 (line/hour search)
+        ├── compare.js      # Logic for Tab 2 (time comparison)
+        ├── routes.js       # Logic for Tab 3 (route builder)
+        └── data.js         # Client-side data access helpers
 ```
 
----
+## 🔄 Usage Flow (사용 흐름)
 
-## ⚡ 실행 방법 (uv 권장)
+```
+User opens browser
+  └─▶ GET /                        # base.html rendered with embedded JSON data
+        ├─ Tab 1: Line Search       # select line → select hour → view crowd %  & level
+        ├─ Tab 2: Time Compare      # select line → compare crowd across hours
+        └─ Tab 3: My Route          # add stations → select hour → view per-station crowd
+```
+
+Client-side JavaScript reads the pre-embedded JSON (no additional page loads needed).
+For programmatic access, the REST API is available separately.
+
+## 🏗️ Architecture (아키텍처)
+
+```
+┌──────────────────────────────────┐
+│  Browser (HTML + JS)             │
+│  - Reads inline JSON on load     │
+│  - Calls /api/* for dynamic data │
+└────────────┬─────────────────────┘
+             │ HTTP
+┌────────────▼─────────────────────┐
+│  Flask app (app.py)              │
+│  Routes:                         │
+│    GET /                         │  → renders base.html (SSR)
+│    GET /api/lines                │  → LINE_META dict
+│    GET /api/stations/<line>      │  → station list for a line
+│    GET /api/congestion/<line>/<hour>  → single-hour congestion + best hour
+│    GET /api/congestion/<line>/all    → hourly array (05–23)
+└────────────┬─────────────────────┘
+             │ Python import
+┌────────────▼─────────────────────┐
+│  data/ package                   │
+│  - line_meta.py   : LINE_META    │
+│  - stations.py    : STATIONS     │
+│  - congestion.py  : PATTERNS,    │
+│                    LINE_PATTERN, │
+│                    helpers       │
+└──────────────────────────────────┘
+```
+
+Congestion values are pre-computed from Seoul Metro statistical approximations. No external API call is made at runtime; all data is served from in-memory Python structures.
+
+## ⚙️ Environment Setup (환경 설정)
+
+Copy `.env.example` to `.env` and fill in the values:
 
 ```bash
-# uv 설치 (처음 한 번만)
+cp .env.example .env
+```
+
+| Variable | Default | Description |
+|---|---|---|
+| `FLASK_ENV` | `development` | Flask environment |
+| `FLASK_DEBUG` | `1` | Enable debug mode (`1` = on) |
+| `FLASK_SECRET_KEY` | *(empty)* | Session secret key — set a strong value in production |
+| `HOST` | `127.0.0.1` | Server bind address |
+| `PORT` | `5000` | Server port |
+| `SEOUL_API_KEY` | *(empty)* | Seoul Open Data Plaza API key (reserved) |
+| `STC_API_KEY` | *(empty)* | Seoul Metro API key (reserved) |
+| `GEOVISION_API_KEY` | *(empty)* | Geovision API key (reserved) |
+
+## 🚀 How to Run (실행 방법)
+
+### Using uv (recommended / 권장)
+
+```bash
+# Install uv if not already installed
 pip install uv
 
-# 가상환경 생성 + 의존성 설치
-uv venv
+# Install dependencies
 uv sync
 
-# 가상환경 활성화
-.venv\Scripts\activate        # Windows
-source .venv/bin/activate     # macOS / Linux
-
-# 앱 실행
-python app.py
-# → http://localhost:5000
+# Run the app
+uv run python app.py
 ```
 
-### pip 사용 (대안)
+### Using pip
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
 pip install -r requirements.txt
+
 python app.py
 ```
 
----
+Open `http://127.0.0.1:5000` in your browser.
 
-## 🔑 환경변수 설정
+### API Quick Reference (API 빠른 참조)
 
-```bash
-cp .env.example .env   # 복사 후 값 입력
-```
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/lines` | All line metadata (name, color) |
+| GET | `/api/stations/<line>` | Station list for a line |
+| GET | `/api/congestion/<line>/<hour>` | Crowd % + level + best hour |
+| GET | `/api/congestion/<line>/all` | Full hourly array (05–23) |
 
-| 변수 | 설명 |
-|------|------|
-| `FLASK_SECRET_KEY` | Flask 세션 암호화 키 |
-| `FLASK_DEBUG` | `1` = 개발, `0` = 운영 |
-| `SEOUL_API_KEY` | 서울 열린데이터광장 API 키 |
-| `STC_API_KEY` | 서울교통공사 혼잡도 API 키 |
-| `GEOVISION_API_KEY` | 지오비전 실시간 혼잡도 API 키 (선택) |
+Example: `GET /api/congestion/2/8` → Line 2 at 08:00
 
----
+## 📄 License & References (라이선스 & 참고 문서)
 
-## 🌐 API 엔드포인트
-
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| GET | `/` | 메인 페이지 |
-| GET | `/api/lines` | 전체 호선 목록 |
-| GET | `/api/stations/{line}` | 호선별 역 목록 |
-| GET | `/api/congestion/{line}/{hour}` | 특정 시간 혼잡도 |
-| GET | `/api/congestion/{line}/all` | 5~23시 전체 혼잡도 |
-
----
-
-## 🔄 실시간 API 연동
-
-`data/congestion.py`의 `get_congestion_pct()` 함수만 교체하면 됩니다.
-
----
-
-## 📊 데이터 출처
-
-서울교통공사 1~8호선 30분 단위 평균 혼잡도 통계 기반  
-https://data.seoul.go.kr/dataList/OA-12928/F/1/datasetView.do
+- Crowd pattern data: approximated from [Seoul Metro statistics](https://www.seoulmetro.co.kr)
+- [Flask documentation](https://flask.palletsprojects.com/)
+- [python-dotenv](https://saurabh-kumar.com/python-dotenv/)
+- [uv — Python package manager](https://docs.astral.sh/uv/)
